@@ -36,7 +36,8 @@ let jsonData;
 module.exports = async function main(req, res) {
   if (req.method === "POST") {
     const requestBody = req.body;
-    console.log(requestBody);
+    // console.log(JSON.stringify(req, null, 2));
+    console.log(JSON.stringify(requestBody, null, 2));
     //   if (requestBody[0].type !== "TRANSFER") {
     //     console.log(requestBody[0].signature);
     //
