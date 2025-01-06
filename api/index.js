@@ -38,7 +38,8 @@ module.exports = async function main(req, res) {
   if (req.method === "POST") {
     const requestBody = req.body;
     // console.log(JSON.stringify(req, null, 2));
-    console.log(util.inspect(requestBody, { showHidden: false, depth: null, colors: true }));
+    fs.writeFileSync('/tmp/full_output.json', JSON.stringify(requestBody, null, 2));
+    console.log('Full output written to /tmp/full_output.json');
     //   if (requestBody[0].type !== "TRANSFER") {
     //     console.log(requestBody[0].signature);
     //
