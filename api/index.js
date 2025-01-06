@@ -1,7 +1,7 @@
 require("dotenv").config();
 const path = require("path");
 const util = require('util');
-const fs = require("fs").promises;
+const fs = require("fs"); // .promises;
 // const {
 //   extractListingPrice,
 //   extractSeller,
