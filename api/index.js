@@ -1,21 +1,21 @@
 require("dotenv").config();
 const path = require("path");
 const fs = require("fs").promises;
-const {
-  extractListingPrice,
-  extractSeller,
-} = require("./extractListingPrice.js");
-// const TwitterController = require('../controllers/X.controller');
-const { addCommas } = require("../helpers/addCommas.js");
-const CoingeckoController = require("../controllers/Coingecko.controller.js");
+// const {
+//   extractListingPrice,
+//   extractSeller,
+// } = require("./extractListingPrice.js");
+// // const TwitterController = require('../controllers/X.controller');
+// const { addCommas } = require("../helpers/addCommas.js");
+// const CoingeckoController = require("../controllers/Coingecko.controller.js");
 
-const TELEGRAM_BOT_TOKEN = process.env.BOT_TOKEN;
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-const X_USER = process.env.X_USER;
-
-const HELIUS_API_KEY = process.env.HELIUS_KEY;
-const HELIUS_RPC_URL = `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`;
-const ROYALTY_FEE = 0.08;
+// const TELEGRAM_BOT_TOKEN = process.env.BOT_TOKEN;
+// const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+// const X_USER = process.env.X_USER;
+//
+// const HELIUS_API_KEY = process.env.HELIUS_KEY;
+// const HELIUS_RPC_URL = `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`;
+// const ROYALTY_FEE = 0.08;
 
 // Declare a variable to hold the JSON data
 let jsonData;
@@ -187,120 +187,120 @@ module.exports = async function main(req, res) {
 };
 
 // This function is used to check the transaction status
-async function checkTransactionStatus(signature) {
-  let transactionData = null;
-  let attempts = 0;
-  const maxAttempts = 10;
-  const delay = 5000;
-
-  while (transactionData === null && attempts < maxAttempts) {
-    attempts++;
-    console.log(`Attempt ${attempts} to check transaction status...`);
-
-    const response = await fetch(HELIUS_RPC_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: "1",
-        method: "getTransaction",
-        params: [signature, { commitment: "confirmed", encoding: "json" }],
-      }),
-    });
-
-    const data = await response.json();
-
-    if (data.result !== null) {
-      transactionData = data.result;
-      console.log("Transaction confirmed");
-      return transactionData;
-    } else {
-      console.log("Transaction not confirmed yet. Retrying...");
-      await new Promise((resolve) => setTimeout(resolve, delay));
-    }
-  }
-
-  console.log("Max attempts reached, transaction still not confirmed.");
-  return transactionData;
-}
-
-// This function checks the marketplace action
-function extractTransactionType(logMessages) {
-  let transactionType = "Unknown";
-  logMessages.forEach((log) => {
-    if (
-      log.includes("Instruction: CoreBuy") ||
-      log.includes("Instruction: BuyCore")
-    ) {
-      transactionType = "Sell";
-    } else if (
-      log.includes("Instruction: CoreCancelSell") ||
-      log.includes("Instruction: DelistCore")
-    ) {
-      transactionType = "Delist";
-    } else if (
-      log.includes("Instruction: CoreSell") ||
-      log.includes("Instruction: ListCore")
-    ) {
-      transactionType = "Listing";
-    }
-  });
-  return transactionType;
-}
-
-// This function sends the NFT updates to Telegram
-async function sendToTelegramNFT(message, imageUrl) {
-  const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
-  const response = await fetch(telegramUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: TELEGRAM_CHAT_ID,
-      photo: imageUrl,
-      caption: message,
-      parse_mode: "HTML",
-    }),
-  });
-  const responseData = await response.json();
-
-  if (!response.ok) {
-    console.error("Failed to send photo to Telegram:", responseData);
-  }
-}
-
-// This function gets images associated with NFTs
-async function getAssetImageUrl(mintAddress) {
-  const response = await fetch(HELIUS_RPC_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: "1",
-      method: "getAsset",
-      params: { id: mintAddress },
-    }),
-  });
-  const result = await response.json();
-  return result.result;
-}
-
-function getTextForRange(number) {
-  switch (true) {
-    case number >= 1 && number <= 22:
-      return "Legendary";
-    case number > 22 && number <= 111:
-      return "Epic";
-    case number > 111 && number <= 444:
-      return "Rare";
-    case number > 444 && number <= 1111:
-      return "Uncommon";
-    case number > 1111 && number <= 2222:
-      return "Uncommon";
-    default:
-      return "Out of range";
-  }
-}
-
-initializeJson();
+// async function checkTransactionStatus(signature) {
+//   let transactionData = null;
+//   let attempts = 0;
+//   const maxAttempts = 10;
+//   const delay = 5000;
+//
+//   while (transactionData === null && attempts < maxAttempts) {
+//     attempts++;
+//     console.log(`Attempt ${attempts} to check transaction status...`);
+//
+//     const response = await fetch(HELIUS_RPC_URL, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({
+//         jsonrpc: "2.0",
+//         id: "1",
+//         method: "getTransaction",
+//         params: [signature, { commitment: "confirmed", encoding: "json" }],
+//       }),
+//     });
+//
+//     const data = await response.json();
+//
+//     if (data.result !== null) {
+//       transactionData = data.result;
+//       console.log("Transaction confirmed");
+//       return transactionData;
+//     } else {
+//       console.log("Transaction not confirmed yet. Retrying...");
+//       await new Promise((resolve) => setTimeout(resolve, delay));
+//     }
+//   }
+//
+//   console.log("Max attempts reached, transaction still not confirmed.");
+//   return transactionData;
+// }
+//
+// // This function checks the marketplace action
+// function extractTransactionType(logMessages) {
+//   let transactionType = "Unknown";
+//   logMessages.forEach((log) => {
+//     if (
+//       log.includes("Instruction: CoreBuy") ||
+//       log.includes("Instruction: BuyCore")
+//     ) {
+//       transactionType = "Sell";
+//     } else if (
+//       log.includes("Instruction: CoreCancelSell") ||
+//       log.includes("Instruction: DelistCore")
+//     ) {
+//       transactionType = "Delist";
+//     } else if (
+//       log.includes("Instruction: CoreSell") ||
+//       log.includes("Instruction: ListCore")
+//     ) {
+//       transactionType = "Listing";
+//     }
+//   });
+//   return transactionType;
+// }
+//
+// // This function sends the NFT updates to Telegram
+// async function sendToTelegramNFT(message, imageUrl) {
+//   const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
+//   const response = await fetch(telegramUrl, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({
+//       chat_id: TELEGRAM_CHAT_ID,
+//       photo: imageUrl,
+//       caption: message,
+//       parse_mode: "HTML",
+//     }),
+//   });
+//   const responseData = await response.json();
+//
+//   if (!response.ok) {
+//     console.error("Failed to send photo to Telegram:", responseData);
+//   }
+// }
+//
+// // This function gets images associated with NFTs
+// async function getAssetImageUrl(mintAddress) {
+//   const response = await fetch(HELIUS_RPC_URL, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({
+//       jsonrpc: "2.0",
+//       id: "1",
+//       method: "getAsset",
+//       params: { id: mintAddress },
+//     }),
+//   });
+//   const result = await response.json();
+//   return result.result;
+// }
+//
+// function getTextForRange(number) {
+//   switch (true) {
+//     case number >= 1 && number <= 22:
+//       return "Legendary";
+//     case number > 22 && number <= 111:
+//       return "Epic";
+//     case number > 111 && number <= 444:
+//       return "Rare";
+//     case number > 444 && number <= 1111:
+//       return "Uncommon";
+//     case number > 1111 && number <= 2222:
+//       return "Uncommon";
+//     default:
+//       return "Out of range";
+//   }
+// }
+//
+// initializeJson();
