@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/tg-hegends.iml" filepath="$PROJECT_DIR$/.idea/tg-hegends.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/squadsbot.iml" filepath="$PROJECT_DIR$/.idea/squadsbot.iml" />
     </modules>
   </component>
 </project>
