@@ -1,5 +1,6 @@
 require("dotenv").config();
 const path = require("path");
+const util = require('util');
 const fs = require("fs").promises;
 // const {
 //   extractListingPrice,
@@ -37,7 +38,7 @@ module.exports = async function main(req, res) {
   if (req.method === "POST") {
     const requestBody = req.body;
     // console.log(JSON.stringify(req, null, 2));
-    console.log(JSON.stringify(requestBody, null, 2));
+    console.log(util.inspect(requestBody, { showHidden: false, depth: null, colors: true }));
     //   if (requestBody[0].type !== "TRANSFER") {
     //     console.log(requestBody[0].signature);
     //

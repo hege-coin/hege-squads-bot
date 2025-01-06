@@ -24,7 +24,8 @@
     "oauth-1.0a": "^2.2.6",
     "crypto": "^1.0.1",
     "query-string": "^9.1.0",
-    "twitter-api-v2": "^1.18.0"
+    "twitter-api-v2": "^1.18.0",
+    "vercel": "^39.2.5"
   },
   "keywords": [],
   "author": "",
