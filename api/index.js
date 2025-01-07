@@ -37,60 +37,60 @@ async function waitForFinalization(txSignature, maxRetries = 10, delayMs = 1000)
 // Vercel API handler
 module.exports = async function main(req, res) {
   if (req.method === "POST") {
-    const requestBody = req.body;
-
     try {
       res.status(200).send("Received"); // Acknowledge early
+      await processData(req.body)
     } catch (error) {
       console.error("Error during webhook processing:", error);
       // No further `res.send()` here since the response is already sent
     }
-
-    // Acknowledge the webhook immediately
-    await waitForFinalization(requestBody[0].signature);
-
-    const proposal = await extractProposal(
-        requestBody
-    );
-    // console.log(JSON.stringify(proposal,null, 2));
-
-    // Hard Coding Squad Lookup to replace
-    let squad, squadName;
-    switch (proposal.multisig) {
-      case 'EAewRpWvgekviWFkAgEKArxJ3JRdP5kTZRTR1JeZ8geL':
-        squad = "3hDU4o9rAykj2hsg72ESQMAk4WZVCHVzjv4635yRJKSZ"
-        squadName = "Test"
-        break
-      case 'AB6kWEj8f9LapM6ckdTPsXGfr6VaTLyKP36r6VABruaw':
-        squad = "3hDU4o9rAykj2hsg72ESQMAk4WZVCHVzjv4635yRJKSZ"
-        squadName = "HegeFund"
-        break
-      case 'DxpNmJeZTBPkUEiA7kJVzUftg2c8q5zjVHAnmVfSjLtK':
-        squad = "5x1qikV9An9sjW78z64hXEq87Ce7A7ppRDbPpNW4LocM"
-        squadName = "Hegends Bank"
-        break
-    }
-
-    // const squad = '3hDU4o9rAykj2hsg72ESQMAk4WZVCHVzjv4635yRJKSZ'
-    if (proposal.action !== null) {
-      const baseURL = `https://app.squads.so/squads/${squad}`;
-      const transactionsURL = baseURL + "/transactions";
-      const vaultURL = transactionsURL + '/' + proposal.vault;
-
-      let title = `<b>${squadName} Squad Update</b>\n\n`
-
-      let action = `<b>Action:</b> <a href="${vaultURL}">${proposal.action}</a>\n`
-      let memo = `<b>Memo:</b> ${proposal.memo}\n\n`
-      let results = `<b>Results:</b>\nApproved: ${proposal.vote.approved.length} / 2\nRejected: ${proposal.vote.rejected.length} / 2\nCanceled: ${proposal.vote.cancelled.length} / 2\n\n`
-      let footer = `<a href="${baseURL}/home">Squad</a> | <a href="${vaultURL}">Proposal</a> | <a href="${transactionsURL}">Transactions</a>`
-
-      const message = title + action + results + footer;
-      await sendToTelegramText(message);
-
-
-    }
   }
 };
+
+async function processData(requestBody) {
+  // Acknowledge the webhook immediately
+  await waitForFinalization(requestBody[0].signature);
+
+  const proposal = await extractProposal(
+      requestBody
+  );
+  // console.log(JSON.stringify(proposal,null, 2));
+
+  // Hard Coding Squad Lookup to replace
+  let squad, squadName;
+  switch (proposal.multisig) {
+    case 'EAewRpWvgekviWFkAgEKArxJ3JRdP5kTZRTR1JeZ8geL':
+      squad = "3hDU4o9rAykj2hsg72ESQMAk4WZVCHVzjv4635yRJKSZ"
+      squadName = "Test"
+      break
+    case 'AB6kWEj8f9LapM6ckdTPsXGfr6VaTLyKP36r6VABruaw':
+      squad = "3hDU4o9rAykj2hsg72ESQMAk4WZVCHVzjv4635yRJKSZ"
+      squadName = "HegeFund"
+      break
+    case 'DxpNmJeZTBPkUEiA7kJVzUftg2c8q5zjVHAnmVfSjLtK':
+      squad = "5x1qikV9An9sjW78z64hXEq87Ce7A7ppRDbPpNW4LocM"
+      squadName = "Hegends Bank"
+      break
+  }
+
+  // const squad = '3hDU4o9rAykj2hsg72ESQMAk4WZVCHVzjv4635yRJKSZ'
+  if (proposal.action !== null) {
+    const baseURL = `https://app.squads.so/squads/${squad}`;
+    const transactionsURL = baseURL + "/transactions";
+    const vaultURL = transactionsURL + '/' + proposal.vault;
+
+    let title = `<b>${squadName} Squad Update</b>\n\n`
+
+    let action = `<b>Action:</b> <a href="${vaultURL}">${proposal.action}</a>\n`
+    let memo = `<b>Memo:</b> ${proposal.memo}\n\n`
+    let results = `<b>Results:</b>\nApproved: ${proposal.vote.approved.length} / 2\nRejected: ${proposal.vote.rejected.length} / 2\nCanceled: ${proposal.vote.cancelled.length} / 2\n\n`
+    let footer = `<a href="${baseURL}/home">Squad</a> | <a href="${vaultURL}">Proposal</a> | <a href="${transactionsURL}">Transactions</a>`
+
+    const message = title + action + results + footer;
+    await sendToTelegramText(message);
+  }
+
+}
 
 // This function sends the NFT updates to Telegram
 async function sendToTelegramText(message) {
