@@ -8,8 +8,6 @@ const {getRandomValues} = require("crypto"); // To decode Base58 data
 
 // Constants
 const RPC_URL = "https://api.mainnet-beta.solana.com";
-const INSTRUCTION_NAME = "listCore";
-const SALE_INSTRUCTION_NAME = "buyCore"; // Name of the sale instruction for Tensor
 
 // Initialize connection and provider
 const connection = new Connection(RPC_URL);
@@ -41,13 +39,6 @@ const bnToNumber = (bn) => {
 
 const SEED_PREFIX = Buffer.from("multisig"); // Replace with the actual prefix
 const SEED_TRANSACTION = Buffer.from("transaction");
-
-// Helper to convert index to u64 bytes
-function toU64Bytes(index) {
-  const buffer = Buffer.alloc(8); // u64 is 8 bytes
-  buffer.writeBigUInt64LE(BigInt(index)); // Write the index in little-endian format
-  return buffer;
-}
 
 // Function to derive the Transaction PDA
 function getTransactionPda(sigKey, index, programId) {
@@ -196,94 +187,4 @@ const extractProposal = async (data) => {
 
 };
 
-// Handle Tensor transactions (includes both listing and sale)
-const handleTensorTransaction = (parsed, programId, action) => {
-  // Determine instruction name based on action
-  const instructionName =
-    action === "Sell" ? SALE_INSTRUCTION_NAME : INSTRUCTION_NAME;
-
-  const relevantInstructions = parsed.filter((instruction) => {
-    if (instruction.programId && instruction.programId instanceof PublicKey) {
-      return (
-        instruction.programId.equals(programId) &&
-        instruction.name === instructionName
-      );
-    }
-    console.log("Invalid or missing programId for instruction:", instruction);
-    return false;
-  });
-
-  if (relevantInstructions.length > 0) {
-    // Handle Sale action
-    if (action === "Sell") {
-      const saleInstruction = relevantInstructions[0];
-      return extractSaleAmount(saleInstruction);
-    }
-
-    // Handle Listing action
-    const listingInstruction = relevantInstructions[0];
-    const { amount } = listingInstruction.args;
-    const rawAmount = bnToNumber(amount);
-
-    console.log("Listing amount (in lamports):", rawAmount);
-
-    return rawAmount;
-  } else {
-    console.log(
-      `No matching ${action} instructions found for programId:`,
-      programId.toBase58()
-    );
-    return null;
-  }
-};
-
-// Extract amount from Sale transaction (`buyCore` instruction)
-const extractSaleAmount = (saleInstruction) => {
-  if (saleInstruction.args && saleInstruction.args.maxAmount) {
-    const maxAmount = bnToNumber(saleInstruction.args.maxAmount);
-    console.log("Sale amount (maxAmount in lamports):", maxAmount);
-    return maxAmount;
-  } else {
-    console.log("No maxAmount found in the sale instruction args.");
-    return null;
-  }
-};
-
-// Handle Magic Eden transactions
-const handleMagicEdenTransaction = (parsed) => {
-  const relevantInstructions = parsed.filter((instruction) => {
-    if (instruction.programId && instruction.programId instanceof PublicKey) {
-      return instruction.name === "coreSell";
-    }
-    return false;
-  });
-
-  if (relevantInstructions.length > 0) {
-    const coreSellInstruction = relevantInstructions[0];
-    const { args } = coreSellInstruction;
-
-    if (args && args.args) {
-      const extractedArgs = args.args;
-      console.log("Extracted args:", extractedArgs);
-
-      const amount = extractedArgs.price
-        ? bnToNumber(extractedArgs.price)
-        : null;
-
-      // console.log("Amount (in lamports):", amount ?? "undefined");
-
-      return amount;
-    }
-  } else {
-    console.log("No coreSell instruction found in the parsed data.");
-    return null;
-  }
-};
-
-const extractSeller = (data) => {
-  const seller = data[0].feePayer;
-  const abbreviatedSeller = `${seller.slice(0, 4)}...${seller.slice(-4)}`;
-  return { seller, abbreviatedSeller };
-};
-
-module.exports = { extractProposal, extractSeller };
+module.exports = { extractProposal };

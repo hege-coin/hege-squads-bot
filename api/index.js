@@ -6,9 +6,12 @@ const {
   extractProposal,
   extractSeller,
 } = require("./extractSquadTransactions");
+const { Connection, PublicKey } = require("@solana/web3.js");
 // // const TwitterController = require('../controllers/X.controller');
 // const { addCommas } = require("../helpers/addCommas.js");
 // const CoingeckoController = require("../controllers/Coingecko.controller.js");
+
+const connection = new Connection("https://api.mainnet-beta.solana.com", "finalized");
 
 const TELEGRAM_BOT_TOKEN = process.env.BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
@@ -18,28 +21,39 @@ const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 // const HELIUS_RPC_URL = `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`;
 // const ROYALTY_FEE = 0.08;
 
-// Declare a variable to hold the JSON data
-let jsonData;
+// Wait until the transaction is finalized
+async function waitForFinalization(txSignature, maxRetries = 10, delayMs = 1000) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const response = await connection.getSignatureStatus(txSignature, { searchTransactionHistory: true });
 
-// Read the JSON data once and store it in the variable
-// async function initializeJson() {
-//   try {
-//     const filePath = path.join(__dirname, "rarity.json");
-//     const data = await fs.readFile(filePath, "utf8");
-//     jsonData = JSON.parse(data);
-//     console.log("JSON Data Loaded");
-//   } catch (error) {
-//     console.error("Error reading JSON file:", error);
-//   }
-// }
+    if (response?.value?.confirmationStatus === "finalized") {
+      console.log("Transaction finalized:");
+      return true;
+    }
 
+    console.log(`Waiting for finalization... Attempt ${attempt + 1}`);
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+
+  throw new Error(`Transaction ${txSignature} not finalized after ${maxRetries} attempts.`);
+}
 // Vercel API handler
 module.exports = async function main(req, res) {
   if (req.method === "POST") {
     const requestBody = req.body;
 
-    // Acknowledge the webhook immediately
+    try {
+      res.status(200).send("Received"); // Acknowledge early
 
+      // Background processing
+      await processTransaction(req.body);
+    } catch (error) {
+      console.error("Error during webhook processing:", error);
+      // No further `res.send()` here since the response is already sent
+    }
+
+    // Acknowledge the webhook immediately
+    await waitForFinalization(requestBody[0].signature);
 
     const proposal = await extractProposal(
         requestBody
@@ -64,7 +78,7 @@ module.exports = async function main(req, res) {
     }
 
     // const squad = '3hDU4o9rAykj2hsg72ESQMAk4WZVCHVzjv4635yRJKSZ'
-    if (action) {
+    if (proposal.action !== null) {
       const baseURL = `https://app.squads.so/squads/${squad}`;
       const transactionsURL = baseURL + "/transactions";
       const vaultURL = transactionsURL + '/' + proposal.vault;
@@ -79,7 +93,6 @@ module.exports = async function main(req, res) {
       const message = title + action + results + footer;
       await sendToTelegramText(message);
 
-      res.status(200).send("Received");
 
     }
   }
