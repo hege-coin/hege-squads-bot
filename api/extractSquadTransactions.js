@@ -1,6 +1,6 @@
 require("dotenv").config();
 const { Program, AnchorProvider, BorshCoder } = require("@coral-xyz/anchor");
-const { Connection, PublicKey } = require("@solana/web3.js");
+const { Connection, PublicKey, SignaturePubkeyPair } = require("@solana/web3.js");
 const { SolanaParser } = require("@debridge-finance/solana-transaction-parser");
 const BN = require("bn.js");
 // const borsh = require('borsh'); // For manual decoding
@@ -183,4 +183,53 @@ const extractProposal = async (data) => {
 
 };
 
-module.exports = { extractProposal };
+const extractMemo = async (vault) => {
+  const publicKey = new PublicKey(vault);
+
+  const programIdString = "SQDS4ep65T869zMMBKyuUq6aD6EgTu8psMjkvj52pCf"
+
+  let programId;
+  try {
+    programId = new PublicKey(programIdString);
+  } catch (error) {
+    console.error("Invalid programId:", programIdString);
+    return;
+  }
+
+  let idl = await fetchIdl(programId);
+  if (!idl) {
+    console.error("Failed to fetch IDL");
+    return;
+  }
+
+  try {
+    // Fetch signatures
+    const signatures = await connection.getSignaturesForAddress(publicKey, {
+      limit: 10, // Number of signatures to fetch
+    });
+    const initial = signatures.at(-1).signature;
+    console.log("Signature:", initial);
+
+    // const initialTransaction = await connection.getTransaction("29BmPxVQw3bnpSVxxKVzzjNrhRzmSS8P4cyzBubDDwHhQtoREz4VsKXEVz71MQAGB1vYEGv2gKjB98WXAhg3A7u1",
+    //     {"maxSupportedTransactionVersion":0,committment:"finalized"});
+    // console.log(JSON.stringify(initialTransaction,null, 2));
+    const txParser = new SolanaParser([{ idl, programId }]);
+    const parsed = await txParser.parseTransaction(
+        connection,
+        initial,
+        false
+    );
+
+    const vaultTx = parsed?.find((pix) => pix.name === "vaultTransactionCreate");
+    const memo = vaultTx.args.args.memo
+
+    return memo;
+    // console.log(parsed);
+  } catch (error) {
+    console.error("Error fetching signatures:", error);
+  }
+}
+
+
+
+module.exports = { extractProposal,extractMemo };
