@@ -1,3 +1,4 @@
+require("dotenv").config();
 const { Program, AnchorProvider, BorshCoder } = require("@coral-xyz/anchor");
 const { Connection, PublicKey } = require("@solana/web3.js");
 const { SolanaParser } = require("@debridge-finance/solana-transaction-parser");
@@ -7,10 +8,10 @@ const BN = require("bn.js");
 const {getRandomValues} = require("crypto"); // To decode Base58 data
 
 // Constants
-const RPC_URL = "https://api.mainnet-beta.solana.com";
+const RPC = process.env.RPC_URL;
 
 // Initialize connection and provider
-const connection = new Connection(RPC_URL);
+const connection = new Connection(RPC);
 const provider = { connection };
 
 // Fetch IDL function

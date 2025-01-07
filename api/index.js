@@ -8,7 +8,9 @@ const { Connection, PublicKey } = require("@solana/web3.js");
 // const { addCommas } = require("../helpers/addCommas.js");
 // const CoingeckoController = require("../controllers/Coingecko.controller.js");
 
-const connection = new Connection("https://api.mainnet-beta.solana.com", "finalized");
+const RPC = process.env.RPC_URL;
+
+const connection = new Connection(RPC, "finalized");
 
 const TELEGRAM_BOT_TOKEN = process.env.BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
