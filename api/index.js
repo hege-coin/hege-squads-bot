@@ -39,7 +39,7 @@ module.exports = async function main(req, res) {
     const requestBody = req.body;
 
     // Acknowledge the webhook immediately
-    res.status(200).send("Received");
+
 
     const proposal = await extractProposal(
         requestBody
@@ -64,20 +64,24 @@ module.exports = async function main(req, res) {
     }
 
     // const squad = '3hDU4o9rAykj2hsg72ESQMAk4WZVCHVzjv4635yRJKSZ'
-    const baseURL = `https://app.squads.so/squads/${squad}`;
-    const transactionsURL = baseURL + "/transactions";
-    const vaultURL = transactionsURL + '/' + proposal.vault;
+    if (action) {
+      const baseURL = `https://app.squads.so/squads/${squad}`;
+      const transactionsURL = baseURL + "/transactions";
+      const vaultURL = transactionsURL + '/' + proposal.vault;
 
-    let title = `<b>${squadName} Squad Update</b>\n\n`
+      let title = `<b>${squadName} Squad Update</b>\n\n`
 
-    let action = `<b>Action:</b> <a href="${vaultURL}">${proposal.action}</a>\n`
-    let memo = `<b>Memo:</b> ${proposal.memo}\n\n`
-    let results = `<b>Results:</b>\nApproved: ${proposal.vote.approved.length} / 2\nRejected: ${proposal.vote.rejected.length} / 2\nCanceled: ${proposal.vote.cancelled.length} / 2\n\n`
-    let footer = `<a href="${baseURL}/home">Squad</a> | <a href="${vaultURL}">Proposal</a> | <a href="${transactionsURL}">Transactions</a>`
+      let action = `<b>Action:</b> <a href="${vaultURL}">${proposal.action}</a>\n`
+      let memo = `<b>Memo:</b> ${proposal.memo}\n\n`
+      let results = `<b>Results:</b>\nApproved: ${proposal.vote.approved.length} / 2\nRejected: ${proposal.vote.rejected.length} / 2\nCanceled: ${proposal.vote.cancelled.length} / 2\n\n`
+      let footer = `<a href="${baseURL}/home">Squad</a> | <a href="${vaultURL}">Proposal</a> | <a href="${transactionsURL}">Transactions</a>`
 
-    const message = title + action + results + footer;
-    await sendToTelegramText(message);
+      const message = title + action + results + footer;
+      await sendToTelegramText(message);
 
+      res.status(200).send("Received");
+
+    }
   }
 };
 
