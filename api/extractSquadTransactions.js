@@ -2,8 +2,8 @@ const { Program, AnchorProvider, BorshCoder } = require("@coral-xyz/anchor");
 const { Connection, PublicKey } = require("@solana/web3.js");
 const { SolanaParser } = require("@debridge-finance/solana-transaction-parser");
 const BN = require("bn.js");
-const borsh = require('borsh'); // For manual decoding
-const bs58 = require('bs58');
+// const borsh = require('borsh'); // For manual decoding
+// const bs58 = require('bs58');
 const {getRandomValues} = require("crypto"); // To decode Base58 data
 
 // Constants
@@ -24,21 +24,16 @@ const fetchIdl = async (programId) => {
   }
 };
 
-// Helper function to safely convert BN to a JavaScript number or fallback
-const bnToNumber = (bn) => {
-  try {
-    if (bn instanceof BN) {
-      return bn.toNumber();
-    }
-    return null;
-  } catch (error) {
-    console.error("Error converting BN to number:", error);
-    return null;
-  }
-};
 
 const SEED_PREFIX = Buffer.from("multisig"); // Replace with the actual prefix
 const SEED_TRANSACTION = Buffer.from("transaction");
+
+// Helper to convert index to u64 bytes
+function toU64Bytes(index) {
+  const buffer = Buffer.alloc(8); // u64 is 8 bytes
+  buffer.writeBigUInt64LE(BigInt(index)); // Write the index in little-endian format
+  return buffer;
+}
 
 // Function to derive the Transaction PDA
 function getTransactionPda(sigKey, index, programId) {

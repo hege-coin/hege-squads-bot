@@ -2,10 +2,7 @@ require("dotenv").config();
 const path = require("path");
 const util = require('util');
 const fs = require("fs"); // .promises;
-const {
-  extractProposal,
-  extractSeller,
-} = require("./extractSquadTransactions");
+const { extractProposal } = require("./extractSquadTransactions");
 const { Connection, PublicKey } = require("@solana/web3.js");
 // // const TwitterController = require('../controllers/X.controller');
 // const { addCommas } = require("../helpers/addCommas.js");
@@ -44,9 +41,6 @@ module.exports = async function main(req, res) {
 
     try {
       res.status(200).send("Received"); // Acknowledge early
-
-      // Background processing
-      await processTransaction(req.body);
     } catch (error) {
       console.error("Error during webhook processing:", error);
       // No further `res.send()` here since the response is already sent
