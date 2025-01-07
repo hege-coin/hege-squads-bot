@@ -38,6 +38,9 @@ module.exports = async function main(req, res) {
   if (req.method === "POST") {
     const requestBody = req.body;
 
+    // Acknowledge the webhook immediately
+    res.status(200).send("Received");
+
     const proposal = await extractProposal(
         requestBody
     );
