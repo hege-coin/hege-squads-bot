@@ -38,8 +38,8 @@ async function waitForFinalization(txSignature, maxRetries = 10, delayMs = 1000)
 module.exports = async function main(req, res) {
   if (req.method === "POST") {
     try {
-      res.status(200).send("Received"); // Acknowledge early
       await processData(req.body)
+      res.status(200).send("Received"); // Acknowledge early
     } catch (error) {
       console.error("Error during webhook processing:", error);
       // No further `res.send()` here since the response is already sent
