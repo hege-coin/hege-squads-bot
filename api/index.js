@@ -57,7 +57,7 @@ async function processData(requestBody) {
       squadName = "Test"
       break
     case 'AB6kWEj8f9LapM6ckdTPsXGfr6VaTLyKP36r6VABruaw':
-      squad = "3hDU4o9rAykj2hsg72ESQMAk4WZVCHVzjv4635yRJKSZ"
+      squad = "BdNDnujLn2yq9x1C5WfD8egQFjPdg8JmKun1qTbQk6z5"
       squadName = "HegeFund"
       break
     case 'DxpNmJeZTBPkUEiA7kJVzUftg2c8q5zjVHAnmVfSjLtK':
